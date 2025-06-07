@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import Image from "next/image";
 
 export default function CadastroPage() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function CadastroPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#8CA08C] px-2">
       <div className="flex flex-col md:flex-row w-full max-w-4xl md:h-[520px] bg-white rounded-none shadow-lg overflow-hidden">
         <div className="flex-1 flex items-center justify-center bg-[#F3EFEA] min-h-[220px]">
-          <img src="/file.svg" alt="Van" className="w-72 h-72 object-contain" />
+          <Image src="/file.svg" alt="Van" width={288} height={288} className="w-72 h-72 object-contain" />
         </div>
         <div className="flex-1 flex flex-col justify-center px-6 md:px-12 py-8">
           <div className="flex flex-col items-center mb-6">

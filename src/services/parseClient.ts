@@ -6,7 +6,7 @@ import Parse from './parseSetup';
 
 export const parseClient = {
   // Métodos simulados para integração futura com Back4App
-  get: async (url: string, params?: any) => {
+  get: async (url: string, params?: Record<string, unknown>) => {
     if (url === '/classes/Course') {
       const Course = Parse.Object.extend('Course');
       const query = new Parse.Query(Course);
@@ -28,7 +28,7 @@ export const parseClient = {
     }
     return { data: null };
   },
-  post: async (url: string, body: any) => {
+  post: async (url: string, body: Record<string, unknown>) => {
     if (url.startsWith('/enroll/')) {
       const courseId = url.split('/').pop();
       const Enrollment = Parse.Object.extend('Enrollment');
@@ -40,7 +40,7 @@ export const parseClient = {
     }
     return { data: null };
   },
-  put: async (url: string, body: any) => {
+  put: async (url: string, body: Record<string, unknown>) => {
     // Exemplo: atualizar usuário
     if (url === '/users/me') {
       // Implemente lógica para atualizar usuário logado
@@ -48,11 +48,12 @@ export const parseClient = {
     }
     return { data: null };
   },
-  delete: async (url: string, body?: any) => {
+  delete: async (url: string, body?: Record<string, unknown>) => {
     if (url.startsWith('/unenroll/')) {
       const courseId = url.split('/').pop();
       const Enrollment = Parse.Object.extend('Enrollment');
       const query = new Parse.Query(Enrollment);
+      if (!body || !body.userId) throw new Error('userId não fornecido');
       query.equalTo('users', { __type: 'Pointer', className: 'Users', objectId: body.userId });
       query.equalTo('course', { __type: 'Pointer', className: 'Course', objectId: courseId });
       const results = await query.find();

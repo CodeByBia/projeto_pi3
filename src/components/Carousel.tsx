@@ -1,27 +1,17 @@
 "use client";
-import React, { useState } from 'react';
-import CourseCard from './CourseCard';
-import CourseActions from "../components/CourseActions";
-
-interface Course {
-  id: string;
-  image: string;
-  title: string;
-  description: string;
-  category?: string;
-  progress?: number;
-  enrolled?: boolean;
-}
+import React from "react";
+import CourseCard from "./CourseCard";
+import CourseActions from "./CourseActions";
+import { Course } from "../services/courseService";
 
 interface CarouselProps {
   title: string;
   courses: Course[];
-  showProgress?: boolean;
   onUnenroll?: (courseId: string) => void;
 }
 
-export default function Carousel({ title, courses, showProgress, onUnenroll }: CarouselProps) {
-  const [start, setStart] = useState(0);
+export default function Carousel({ title, courses, onUnenroll }: CarouselProps) {
+  const [start, setStart] = React.useState(0);
   const visible = 2;
   const canPrev = start > 0;
   const canNext = start + visible < courses.length;
@@ -29,7 +19,7 @@ export default function Carousel({ title, courses, showProgress, onUnenroll }: C
   return (
     <section className="mb-8">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="font-bold text-lg">{title}</h2>
+        <h2 className="font-bold text-lg text-black">{title}</h2>
         <div className="flex gap-2">
           <button
             className={`rounded-full p-1 border ${canPrev ? 'bg-white' : 'bg-gray-100 text-gray-400'} `}
@@ -54,7 +44,6 @@ export default function Carousel({ title, courses, showProgress, onUnenroll }: C
               image={course.image}
               title={course.title}
               category={course.category || ''}
-              progress={course.progress}
             />
             {onUnenroll && course.enrolled && (
               <CourseActions

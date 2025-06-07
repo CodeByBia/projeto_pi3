@@ -9,35 +9,35 @@ import { courseService, Course } from "../services/courseService";
 export default function Home() {
 	const [userCourses, setUserCourses] = useState<Course[]>([]);
 	const [newCourses, setNewCourses] = useState<Course[]>([]);
-	const [loading, setLoading] = useState(true);
+	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
 		async function fetchCourses() {
-			setLoading(true);
+			setIsLoading(true);
 			const all = await courseService.listCourses();
-			setUserCourses(all.filter((c) => c.enrolled));
-			setNewCourses(all.filter((c) => !c.enrolled));
-			setLoading(false);
+			setUserCourses(all.filter((c: Course) => c.enrolled));
+			setNewCourses(all.filter((c: Course) => !c.enrolled));
+			setIsLoading(false);
 		}
 		fetchCourses();
 	}, []);
 
-	async function handleEnroll(courseId: string) {
-		setLoading(true);
+	async function onEnroll(courseId: string) {
+		setIsLoading(true);
 		await courseService.enroll(courseId);
 		const all = await courseService.listCourses();
-		setUserCourses(all.filter((c) => c.enrolled));
-		setNewCourses(all.filter((c) => !c.enrolled));
-		setLoading(false);
+		setUserCourses(all.filter((c: Course) => c.enrolled));
+		setNewCourses(all.filter((c: Course) => !c.enrolled));
+		setIsLoading(false);
 	}
 
-	async function handleUnenroll(courseId: string) {
-		setLoading(true);
+	async function onUnenroll(courseId: string) {
+		setIsLoading(true);
 		await courseService.unenroll(courseId);
 		const all = await courseService.listCourses();
-		setUserCourses(all.filter((c) => c.enrolled));
-		setNewCourses(all.filter((c) => !c.enrolled));
-		setLoading(false);
+		setUserCourses(all.filter((c: Course) => c.enrolled));
+		setNewCourses(all.filter((c: Course) => !c.enrolled));
+		setIsLoading(false);
 	}
 
 	return (
@@ -46,12 +46,12 @@ export default function Home() {
 			<div className="flex-1 flex flex-col">
 				<Header userName="Paula" />
 				<main className="flex-1 p-8 bg-white rounded-xl shadow-sm mt-6">
-					{loading ? (
+					{isLoading ? (
 						<div>Carregando...</div>
 					) : (
 						<>
-							<Carousel title="Seus cursos" courses={userCourses} showProgress onUnenroll={handleUnenroll} />
-							<NewCourses courses={newCourses} onEnroll={handleEnroll} />
+							<Carousel title="Seus cursos" courses={userCourses} onUnenroll={onUnenroll} />
+							<NewCourses courses={newCourses} onEnroll={onEnroll} />
 						</>
 					)}
 				</main>

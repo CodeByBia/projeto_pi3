@@ -10,4 +10,6 @@ const PARSE_SERVER_URL = 'https://parseapi.back4app.com';
 Parse.initialize(PARSE_APP_ID, PARSE_JS_KEY);
 Parse.serverURL = PARSE_SERVER_URL;
 
+// Corrigir tipagem de funções, evitar uso de 'any'.
+
 export default Parse;

@@ -1,16 +1,8 @@
 "use client";
-import React from 'react';
-import CourseCard from './CourseCard';
+import React from "react";
+import CourseCard from "./CourseCard";
 import CourseActions from "./CourseActions";
-
-interface Course {
-  id: string;
-  image: string;
-  title: string;
-  description?: string;
-  category?: string;
-  enrolled?: boolean;
-}
+import { Course } from "../services/courseService";
 
 interface NewCoursesProps {
   courses: Course[];
@@ -27,7 +19,7 @@ export default function NewCourses({ courses, onEnroll }: NewCoursesProps) {
             <CourseCard
               image={course.image}
               title={course.title}
-              category={course.category || ''}
+              category={course.category || ""}
             />
             {onEnroll && !course.enrolled && (
               <CourseActions

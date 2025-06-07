@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function LoginPage() {
       <div className="flex w-[900px] h-[450px] bg-white rounded-none shadow-lg overflow-hidden">
         <div className="flex-1 flex items-center justify-center bg-[#F3EFEA]">
           {/* Ilustração */}
-          <img src="/file.svg" alt="Van" className="w-72 h-72 object-contain" />
+          <Image src="/file.svg" alt="Van" width={288} height={288} className="w-72 h-72 object-contain" />
         </div>
         <div className="flex-1 flex flex-col justify-center px-12 py-8">
           <div className="flex flex-col items-center mb-6">
