@@ -26,31 +26,33 @@ const details = {
 };
 
 export default function DetalheCurso() {
+  const [aulaChecked, setAulaChecked] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [aula1, setAula1] = useState(false);
-  const [enrollmentId, setEnrollmentId] = useState<string | null>(null);
-  const [progresso, setProgresso] = useState("");
   const params = useParams();
-  const courseId = Array.isArray(params?.id) ? params.id[0] : params?.id || ""; // Supondo rota /detalhe-curso/[id]
+  const courseId = Array.isArray(params?.id) ? params.id[0] : params?.id || ""; // objectId do curso
   const router = useRouter();
 
   useEffect(() => {
     async function fetchEnrollmentId() {
       if (!courseId) return;
-      const res = await fetch('/api/enrollments', { method: 'GET' });
-      const enrollments = await res.json();
-      console.log('enrollments recebidos:', enrollments); // debug
-      // Busca a inscrição do usuário para este curso
-      const enrollment = enrollments.find((e: any) =>
-        (e.course?.objectId === courseId) || (e.course?.id === courseId)
-      );
-      if (enrollment) {
-        setEnrollmentId(enrollment.id || enrollment.objectId);
-        setAula1(!!enrollment.aula1);
-        setProgresso(enrollment.progresso || "");
-      } else {
-        setEnrollmentId(null);
+      // Busca direta no Parse
+      const Parse = (await import('parse')).default;
+      const Enrollment = Parse.Object.extend('Enrollment');
+      const query = new Parse.Query(Enrollment);
+      query.equalTo('course', { __type: 'Pointer', className: 'Course', objectId: courseId });
+      query.equalTo('user', { __type: 'Pointer', className: '_User', objectId: 'ID_DO_USUARIO_FIXO' });
+      try {
+        const enrollment = await query.first();
+        if (!enrollment) {
+          alert('Nenhuma inscrição encontrada para este curso.');
+          setEnrolled(false);
+          return;
+        }
+        setEnrolled(true);
+      } catch (err) {
+        alert('Erro ao buscar inscrição: ' + (err instanceof Error ? err.message : JSON.stringify(err)));
+        setEnrolled(false);
       }
     }
     fetchEnrollmentId();
@@ -68,27 +70,27 @@ export default function DetalheCurso() {
     setEnrolled(false);
     setLoading(false);
   }
-  async function handleAula1Change(e: React.ChangeEvent<HTMLInputElement>) {
-    const checked = e.target.checked;
-    setAula1(checked);
-    if (enrollmentId) {
-      await enrollmentService.updateAula1(enrollmentId, checked);
-    }
-  }
+
   async function handleFinalizar() {
-    if (enrollmentId) {
-      try {
-        await enrollmentService.updateProgresso(enrollmentId, "Feito");
-        setProgresso("Feito");
-        alert("Parabéns! Você concluiu o curso.");
-        router.push("/");
-      } catch (err) {
-        console.error("Erro ao finalizar curso:", err);
-        alert("Erro ao finalizar curso: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+    if (!courseId) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/courses`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ objectId: courseId, progresso: "finalizado" })
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro na requisição: ${response.status} - ${errorText}`);
       }
-    } else {
-      alert("Nenhuma inscrição encontrada para este curso.");
-      console.error("enrollmentId não encontrado para o curso", courseId);
+      alert("Parabéns! Você concluiu o curso.");
+      router.push("/");
+    } catch (err) {
+      console.error("Erro ao finalizar curso:", err);
+      alert("Erro ao finalizar curso: " + (err instanceof Error ? err.message : JSON.stringify(err)));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -117,22 +119,22 @@ export default function DetalheCurso() {
                   Essa é a sua primeira aula <b className="text-black">{details.teacher.name}</b>!<br />
                   {details.teacher.desc}
                 </div>
-                <div className="mt-6 flex flex-col items-center">
+                <div className="mt-6 flex flex-col items-center gap-4">
                   <label className="flex items-center gap-2 text-black">
                     <input
                       type="checkbox"
-                      checked={aula1}
-                      onChange={handleAula1Change}
+                      checked={aulaChecked}
+                      onChange={e => setAulaChecked(e.target.checked)}
                       className="accent-green-600 w-5 h-5"
                     />
-                    Aula 1
+                    Aula
                   </label>
                   <button
-                    className={`mt-4 px-8 py-2 rounded text-white font-semibold text-lg ${aula1 ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"}`}
-                    disabled={!aula1 || progresso === "Feito"}
+                    className={`px-8 py-2 rounded text-white font-semibold text-lg ${aulaChecked ? "bg-green-600 hover:bg-green-700" : "bg-gray-400 cursor-not-allowed"}`}
+                    disabled={!aulaChecked || loading}
                     onClick={handleFinalizar}
                   >
-                    {progresso === "Feito" ? "Curso Finalizado" : "Finalizar Curso"}
+                    Finalizar Curso
                   </button>
                 </div>
               </div>

@@ -9,7 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const query = new Parse.Query(Enrollment);
     query.equalTo('users', { __type: 'Pointer', className: 'Users', objectId: FIXED_USER_ID });
     const results = await query.find();
-    const enrolledCourseIds = results.map((e: Parse.Object) => e.get('course')?.id).filter(Boolean);
+    const enrolledCourseIds = results
+      .map((e) => {
+        const course = e.get('course') as Parse.Pointer | undefined;
+        return course?.objectId;
+      })
+      .filter(Boolean);
     res.status(200).json(enrolledCourseIds);
   } else if (req.method === 'POST') {
     try {

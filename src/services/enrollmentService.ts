@@ -21,4 +21,9 @@ export const enrollmentService = {
       body: JSON.stringify({ progresso }),
     });
   },
-};
+//   async getEnrollment(enrollmentId: string): Promise<Enrollment> {
+//     const res = await fetch(`/api/enrollments/${enrollmentId}`, { method: 'GET' });
+//     if (!res.ok) throw new Error('Erro ao buscar inscrição');
+//     return res.json();
+//   },
+// };
